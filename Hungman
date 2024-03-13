@@ -1,0 +1,47 @@
+import random
+
+def choose_word():
+    words=["apel", "anggur", "kiwi", "mangga", "pir", "rambutan"]
+    return random.choices(words)
+
+def display_word(secret_word, guessed_letter):
+    display =""
+    for letter in secret_word:
+        if letter.lower() in guessed_letter:
+            display += letter + " "
+        else :
+            display += "_"
+    return display.strip
+
+secret_word = choose_word
+guessed_letter = []
+attempts = 6
+
+print("Welcome to Hungman")
+print("Kata tersebut memiliki", len(secret_word), "huruf.")
+
+while attempts >0:
+    print ("\nKata:", display_word(secret_word, guessed_letter))
+    guess = input("Tebak sebuah huruf: ").lower()
+
+    if len(guess) != 1 or not guess.isalpha():
+        print("Mohon masukkan satu huruf saja.")
+        continue
+
+    if guess in guessed_letter:
+        print("Anda sudah menebak huruf itu sebelumnya.")
+        continue
+
+    guessed_letter.append(guess)
+
+    if guess in secret_word.lower():
+        print("Benar!")
+        if all(letter in guessed_letter for letter in secret_word.lower()):
+            print("Selamat! Anda berhasil menebak kata:", secret_word)
+            break
+    else:
+        attempts -= 1
+        print("Salah! Anda memiliki", attempts, "percobaan lagi.")
+
+if attempts == 0:
+    print("\nMaaf, Anda kehabisan percobaan. Kata tersebut adalah:", secret_word)
