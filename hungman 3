@@ -1,0 +1,45 @@
+def display_word(secret_word, guessed_letters):
+    display = ""
+    for letter in secret_word:
+        if letter.lower() in guessed_letters:
+            display += letter + " "
+        else:
+            display += "_ "
+    return display.strip()
+
+secret_word = "Bukber"
+guessed_letters = []
+attempts = 6
+
+print("Welcome to Hungman")
+print("Kata tersebut memiliki", len(secret_word), "huruf.")
+
+while attempts > 0:
+    print("\nKata:", display_word(secret_word, guessed_letters))
+    guess = input("Tebak sebuah huruf: ").lower()
+
+    if len(guess) != 1:
+        print("Mohon masukkan satu huruf saja.")
+        continue
+
+    elif not guess.isalpha():
+        print("Mohon hanya masukkan huruf")
+        continue
+
+    elif guess in guessed_letters:
+        print("Anda sudah menebak huruf itu sebelumnya.")
+        continue
+
+    guessed_letters.append(guess)
+
+    if guess in secret_word.lower():
+        print("Benar!")
+        if all(letter in guessed_letters for letter in secret_word.lower()):
+            print("Selamat! Anda berhasil menebak kata:", secret_word)
+            break
+    else:
+        attempts -= 1
+        print("Salah! Anda memiliki", attempts, "percobaan lagi.")
+
+if attempts == 0:
+    print("\nMaaf, Anda kehabisan percobaan. Kata tersebut adalah:", secret_word)
