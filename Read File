@@ -1,0 +1,13 @@
+salesData = {}
+infile = open(".\\Lab Int Programming\\icecream.txt", "r")
+
+while True:
+    line = infile.readline()
+    for line in infile:
+        key = line.split(":")[0]
+        value =line.strip().split(":")[1:]
+        salesData[key] = value
+    if not line:
+        break
+
+print(salesData)
