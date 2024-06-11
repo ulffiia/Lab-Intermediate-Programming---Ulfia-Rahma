@@ -1,0 +1,28 @@
+class Counter:
+    def _init_(self):
+        self.reset()
+    
+    def reset(self):
+        self.count = 0
+    
+    def click(self):
+        self.count += 1
+    
+    def getValue(self):
+        return self.count
+
+# Usage example
+tally = Counter()
+tally.reset()
+tally.click()
+tally.click()
+result = tally.getValue() # Result is 2
+print(result) # Output: 2
+
+tally.click()
+result = tally.getValue() # Result is 3
+print(result) # Output: 3
+
+tally.reset()
+result = tally.getValue()
+print(result)
