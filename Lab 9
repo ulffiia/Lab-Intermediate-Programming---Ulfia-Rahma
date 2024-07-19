@@ -1,0 +1,149 @@
+import sqlite3
+import tkinter as tk
+from tkinter import messagebox
+
+# Membuat atau menghubungkan ke database
+conn = sqlite3.connect('contacts.db')
+c = conn.cursor()
+
+# Membuat tabel jika belum ada
+c.execute('''
+    CREATE TABLE IF NOT EXISTS contacts (
+        id INTEGER PRIMARY KEY,
+        nama TEXT,
+        alamat TEXT,
+        no_telp TEXT,
+        email TEXT
+    )
+''')
+conn.commit()
+
+# Fungsi untuk menambah kontak
+def insert_contact(nama, alamat, no_telp, email):
+    c.execute('''
+        INSERT INTO contacts (nama, alamat, no_telp, email)
+        VALUES (?, ?, ?, ?)
+    ''', (nama, alamat, no_telp, email))
+    conn.commit()
+
+# Fungsi untuk menampilkan semua kontak
+def fetch_contacts():
+    c.execute('SELECT * FROM contacts')
+    return c.fetchall()
+
+# Fungsi untuk mengubah kontak
+def update_contact(id, nama, alamat, no_telp, email):
+    c.execute('''
+        UPDATE contacts
+        SET nama = ?, alamat = ?, no_telp = ?, email = ?
+        WHERE id = ?
+    ''', (nama, alamat, no_telp, email, id))
+    conn.commit()
+
+# Fungsi untuk menghapus kontak
+def delete_contact(id):
+    c.execute('DELETE FROM contacts WHERE id = ?', (id,))
+    conn.commit()
+
+# Fungsi untuk menambah kontak dari GUI
+def add_contact():
+    nama = entry_nama.get()
+    alamat = entry_alamat.get()
+    no_telp = entry_no_telp.get()
+    email = entry_email.get()
+    if nama and alamat and no_telp and email:
+        insert_contact(nama, alamat, no_telp, email)
+        listbox_contacts.insert(tk.END, f"{nama} - {alamat} - {no_telp} - {email}")
+        entry_nama.delete(0, tk.END)
+        entry_alamat.delete(0, tk.END)
+        entry_no_telp.delete(0, tk.END)
+        entry_email.delete(0, tk.END)
+    else:
+        messagebox.showwarning("Input Error", "All fields are required!")
+
+# Fungsi untuk menampilkan kontak di GUI
+def show_contacts():
+    listbox_contacts.delete(0, tk.END)
+    contacts = fetch_contacts()
+    for contact in contacts:
+        listbox_contacts.insert(tk.END, f"{contact[0]} - {contact[1]} - {contact[2]} - {contact[3]} - {contact[4]}")
+
+# Fungsi untuk menghapus kontak dari GUI
+def delete_selected_contact():
+    selected = listbox_contacts.curselection()
+    if selected:
+        contact = listbox_contacts.get(selected)
+        contact_id = int(contact.split(' - ')[0])
+        delete_contact(contact_id)
+        show_contacts()
+    else:
+        messagebox.showwarning("Selection Error", "Select a contact to delete!")
+
+# Fungsi untuk mengubah kontak dari GUI
+def update_selected_contact():
+    selected = listbox_contacts.curselection()
+    if selected:
+        contact = listbox_contacts.get(selected)
+        contact_id = int(contact.split(' - ')[0])
+        nama = entry_nama.get()
+        alamat = entry_alamat.get()
+        no_telp = entry_no_telp.get()
+        email = entry_email.get()
+        if nama and alamat and no_telp and email:
+            update_contact(contact_id, nama, alamat, no_telp, email)
+            show_contacts()
+            entry_nama.delete(0, tk.END)
+            entry_alamat.delete(0, tk.END)
+            entry_no_telp.delete(0, tk.END)
+            entry_email.delete(0, tk.END)
+        else:
+            messagebox.showwarning("Input Error", "All fields are required!")
+    else:
+        messagebox.showwarning("Selection Error", "Select a contact to update!")
+
+# GUI menggunakan Tkinter
+root = tk.Tk()
+root.title("Buku Alamat")
+
+frame = tk.Frame(root)
+frame.pack(pady=20)
+
+label_nama = tk.Label(frame, text="Nama")
+label_nama.grid(row=0, column=0)
+entry_nama = tk.Entry(frame)
+entry_nama.grid(row=0, column=1)
+
+label_alamat = tk.Label(frame, text="Alamat")
+label_alamat.grid(row=1, column=0)
+entry_alamat = tk.Entry(frame)
+entry_alamat.grid(row=1, column=1)
+
+label_no_telp = tk.Label(frame, text="No Telp")
+label_no_telp.grid(row=2, column=0)
+entry_no_telp = tk.Entry(frame)
+entry_no_telp.grid(row=2, column=1)
+
+label_email = tk.Label(frame, text="Email")
+label_email.grid(row=3, column=0)
+entry_email = tk.Entry(frame)
+entry_email.grid(row=3, column=1)
+
+button_add = tk.Button(frame, text="Tambah Kontak", command=add_contact)
+button_add.grid(row=4, column=0, columnspan=2, pady=10)
+
+button_update = tk.Button(frame, text="Ubah Kontak", command=update_selected_contact)
+button_update.grid(row=5, column=0, columnspan=2, pady=10)
+
+button_delete = tk.Button(frame, text="Hapus Kontak", command=delete_selected_contact)
+button_delete.grid(row=6, column=0, columnspan=2, pady=10)
+
+listbox_contacts = tk.Listbox(root, width=50)
+listbox_contacts.pack(pady=20)
+
+button_show = tk.Button(root, text="Tampilkan Kontak", command=show_contacts)
+button_show.pack()
+
+root.mainloop()
+
+# Menutup koneksi database saat aplikasi ditutup
+conn.close()
